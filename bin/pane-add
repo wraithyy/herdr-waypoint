@@ -1,21 +1,21 @@
 #!/usr/bin/env bash
-# Pane `favorite-spaces.add-pane`: prompts for a name (pre-filled with the
-# folder's own name — editable, not forced) and saves cwd -> name.
+# Pane `waypoint.add-pane`: prompts for a name (pre-filled with the folder's
+# own name — editable, not forced) and saves cwd -> name.
 set -uo pipefail
 ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 # shellcheck source=lib.sh
 . "$ROOT/bin/lib.sh"
 
-dir="${FAV_CWD:-$PWD}"
+dir="${WP_CWD:-$PWD}"
 default_name="$(basename "$dir")"
 
-printf '\033[1;38;5;212mAdd favorite\033[0m\n\n  %s\n\n' "$dir"
+printf '\033[1;38;5;212mAdd waypoint\033[0m\n\n  %s\n\n' "$dir"
 name=""
 if [ -t 0 ]; then
   read -r -e -i "$default_name" -p "  name: " name || true
 fi
 name="${name:-$default_name}"
 
-fav_add "$name" "$dir"
+wp_add "$name" "$dir"
 printf '\n  saved: %s -> %s\n' "$name" "$dir"
 sleep 1

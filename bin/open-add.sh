@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Action `favorite-spaces.add`: runs on the herdr server (no TTY), so it opens
+# Action `waypoint.add`: runs on the herdr server (no TTY), so it opens
 # the `add-pane` overlay (which gets a real terminal) to prompt for a name.
 set -uo pipefail
 
@@ -13,11 +13,11 @@ fi
 [ -n "$repo" ] || repo="${HERDR_WORKSPACE_CWD:-$PWD}"
 
 set -- plugin pane open \
-  --plugin favorite-spaces \
+  --plugin waypoint \
   --entrypoint add-pane \
   --placement overlay \
   --focus \
-  --env "FAV_CWD=$repo"
+  --env "WP_CWD=$repo"
 
 [ -d "$repo" ] && set -- "$@" --cwd "$repo"
 

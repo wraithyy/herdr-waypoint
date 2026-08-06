@@ -1,31 +1,31 @@
-id = "favorite-spaces"
-name = "Favorite Spaces"
+id = "waypoint"
+name = "Waypoint"
 version = "0.1.0"
 min_herdr_version = "0.7.0"
-description = "Save favorite folders with a name, then pick one to open as a new workspace."
+description = "Save folders with a name, then pick one from a fuzzy list to open as a new workspace."
 platforms = ["macos", "linux"]
 
 [[actions]]
 id = "add"
-title = "Favorites: save current folder"
+title = "Waypoint: save current folder"
 contexts = ["workspace"]
 command = ["bash", "bin/open-add.sh"]
 
 [[actions]]
 id = "pick"
-title = "Favorites: new space from favorite"
+title = "Waypoint: new space from a waypoint"
 contexts = ["global", "workspace"]
 command = ["bash", "bin/open-pick.sh"]
 
 [[panes]]
 id = "add-pane"
-title = "Add favorite"
+title = "Add waypoint"
 placement = "overlay"
 command = ["bash", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/pane-add\""]
 
 [[panes]]
 id = "pick-pane"
-title = "New space from favorite"
+title = "New space from a waypoint"
 placement = "overlay"
 command = ["bash", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/pane-pick\""]
 
@@ -34,13 +34,13 @@ command = ["bash", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/pane-pick\""]
 # keys yourself in ~/.config/herdr/config.toml, then `herdr server reload-config`:
 #
 #   [[keys.command]]
-#   key = "prefix+f"
+#   key = "prefix+y"
 #   type = "plugin_action"
-#   command = "favorite-spaces.pick"
-#   description = "New space from favorite"
+#   command = "waypoint.pick"
+#   description = "New space from a waypoint"
 #
 #   [[keys.command]]
-#   key = "prefix+shift+f"
+#   key = "prefix+shift+v"
 #   type = "plugin_action"
-#   command = "favorite-spaces.add"
-#   description = "Save current folder as favorite"
+#   command = "waypoint.add"
+#   description = "Save current folder as a waypoint"

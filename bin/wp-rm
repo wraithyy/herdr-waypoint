@@ -8,4 +8,4 @@ ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 
 line="${1:-}"
 [ -n "$line" ] || exit 0
-fav_remove "${line#*$'\t'}"
+wp_remove "${line#*$'\t'}"
