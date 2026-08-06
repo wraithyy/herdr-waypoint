@@ -18,3 +18,11 @@ fav_add() {
   printf '%s\t%s\n' "$name" "$path" >> "$f.tmp"
   mv "$f.tmp" "$f"
 }
+
+# fav_remove <path> — drop the favorite for that path, if any.
+fav_remove() {
+  local path="$1" f
+  f="$(fav_store)"
+  grep -v -F $'\t'"$path" "$f" > "$f.tmp" 2>/dev/null || true
+  mv "$f.tmp" "$f"
+}

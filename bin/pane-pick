@@ -19,7 +19,10 @@ command -v fzf >/dev/null 2>&1 || die "favorite-spaces: fzf is not installed or 
 store="$(fav_store)"
 [ -s "$store" ] || die "favorite-spaces: no favorites yet — run 'Favorites: save current folder' first."
 
-choice="$(fzf --delimiter=$'\t' --with-nth=1,2 --prompt='favorite ▸ ' --header='enter open · esc cancel' --reverse --no-multi < "$store")" || true
+choice="$(fzf --delimiter=$'\t' --with-nth=1,2 --prompt='favorite ▸ ' \
+  --header='enter open · ctrl-x delete · esc cancel' --reverse --no-multi \
+  --bind "ctrl-x:execute-silent($ROOT/bin/fav-rm {})+reload(cat $store)" \
+  < "$store")" || true
 [ -n "$choice" ] || exit 0
 
 name="${choice%%$'\t'*}"

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Helper for pane-pick's fzf ctrl-x binding: $1 is the raw "name<TAB>path" line
+# fzf handed back for the highlighted entry; drop it from the store.
+set -uo pipefail
+ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=lib.sh
+. "$ROOT/bin/lib.sh"
+
+line="${1:-}"
+[ -n "$line" ] || exit 0
+fav_remove "${line#*$'\t'}"
