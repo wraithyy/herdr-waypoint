@@ -40,13 +40,13 @@ menu — so bind keys yourself in `~/.config/herdr/config.toml`:
 
 ```toml
 [[keys.command]]
-key = "prefix+f"
+key = "prefix+y"
 type = "plugin_action"
 command = "favorite-spaces.pick"
 description = "New space from favorite"
 
 [[keys.command]]
-key = "prefix+shift+f"
+key = "prefix+shift+v"
 type = "plugin_action"
 command = "favorite-spaces.add"
 description = "Save current folder as favorite"
