@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+# Pure-bash fallback picker used by pane-pick when fzf isn't installed.
+# Same controls as the fzf picker: j/k/arrows move, enter opens, d deletes,
+# r renames, q/esc cancels. Prints the chosen "name<TAB>path" line on open,
+# nothing otherwise. bash 3.2 compatible (macOS default bash).
+set -uo pipefail
+ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=lib.sh
+. "$ROOT/bin/lib.sh"
+store="$(wp_store)"
+
+sel=0
+printf '\033[?25l'
+trap 'printf "\033[?25h"' EXIT
+
+while :; do
+  names=(); paths=()
+  while IFS=$'\t' read -r n p; do
+    [ -n "$n" ] || continue
+    names+=("$n"); paths+=("$p")
+  done < "$store"
+  n=${#names[@]}
+  [ "$n" -gt 0 ] || { printf '\033[2J\033[Hwaypoint: no waypoints yet.\n'; sleep 1; exit 0; }
+  [ "$sel" -lt "$n" ] || sel=$((n-1))
+
+  printf '\033[2J\033[H\n  \033[1;38;5;212mWaypoints\033[0m\n\n'
+  for i in $(seq 0 $((n-1))); do
+    if [ "$i" -eq "$sel" ]; then printf '  \033[7m ▸ %-20s %s \033[0m\n' "${names[i]}" "${paths[i]}"
+    else printf '    %-20s %s\n' "${names[i]}" "${paths[i]}"; fi
+  done
+  printf '\n  ↑/↓ · j/k move   enter open   r rename   d delete   q cancel\n'
+
+  IFS= read -rsn1 key || exit 0
+  case "$key" in
+    j|J) sel=$(((sel+1)%n)) ;;
+    k|K) sel=$(((sel-1+n)%n)) ;;
+    ''|$'\n'|$'\r') printf '%s\t%s\n' "${names[sel]}" "${paths[sel]}"; exit 0 ;;
+    d|D) wp_remove "${paths[sel]}" ;;
+    r|R)
+      printf '\033[2J\033[H\n  rename \033[2m%s\033[0m\n\n' "${paths[sel]}"
+      new_name=""
+      read -r -p "  name [${names[sel]}]: " new_name || true
+      wp_add "${new_name:-${names[sel]}}" "${paths[sel]}"
+      ;;
+    q|Q) exit 0 ;;
+    $'\e')
+      IFS= read -rsn2 -t 1 rest
+      case "$rest" in '[A'|'OA') sel=$(((sel-1+n)%n)) ;; '[B'|'OB') sel=$(((sel+1)%n)) ;; '') exit 0 ;; esac
+      ;;
+  esac
+done

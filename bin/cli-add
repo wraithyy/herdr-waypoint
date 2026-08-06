@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Standalone, no herdr required: add a waypoint directly from any shell.
+# Usage: cli-add [path] [name]   (path defaults to $PWD, name to its basename)
+set -uo pipefail
+ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=lib.sh
+. "$ROOT/bin/lib.sh"
+
+path="$(cd "${1:-$PWD}" 2>/dev/null && pwd)" || { echo "waypoint: '${1:-$PWD}' is not a directory" >&2; exit 1; }
+name="${2:-$(basename "$path")}"
+
+wp_add "$name" "$path"
+printf 'saved: %s -> %s\n' "$name" "$path"

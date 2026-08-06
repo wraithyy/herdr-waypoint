@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
-# Pane `waypoint.pick-pane`: fzf over saved waypoints, then opens the chosen
-# one as a new workspace. ctrl-x on the highlighted entry deletes it in place.
+# Pane `waypoint.pick-pane`: picks a saved waypoint, then opens it as a new
+# workspace. Uses fzf when available (preview + ctrl-x delete + ctrl-r
+# rename); falls back to a pure-bash chooser with the same controls
+# (d delete, r rename) when fzf isn't installed.
 set -uo pipefail
 ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 # shellcheck source=lib.sh
@@ -14,15 +16,20 @@ die() {
   exit 1
 }
 
-command -v fzf >/dev/null 2>&1 || die "waypoint: fzf is not installed or not on PATH."
-
 store="$(wp_store)"
 [ -s "$store" ] || die "waypoint: no waypoints yet — run 'Waypoint: save current folder' first."
 
-choice="$(fzf --delimiter=$'\t' --with-nth=1,2 --prompt='waypoint ▸ ' \
-  --header='enter open · ctrl-x delete · esc cancel' --reverse --no-multi \
-  --bind "ctrl-x:execute-silent($ROOT/bin/wp-rm {})+reload(cat $store)" \
-  < "$store")" || true
+if command -v fzf >/dev/null 2>&1; then
+  choice="$(fzf --delimiter=$'\t' --with-nth=1,2 --prompt='waypoint ▸ ' \
+    --header='enter open · ctrl-x delete · ctrl-r rename · esc cancel' --reverse --no-multi \
+    --preview '(cd {2} 2>/dev/null && git -c color.ui=always status -sb 2>/dev/null) || ls -la {2} 2>/dev/null' \
+    --preview-window=right:50% \
+    --bind "ctrl-x:execute-silent($ROOT/bin/wp-rm {})+reload(cat $store)" \
+    --bind "ctrl-r:execute($ROOT/bin/wp-rename {})+reload(cat $store)" \
+    < "$store")" || true
+else
+  choice="$("$ROOT/bin/pick-fallback")" || true
+fi
 [ -n "$choice" ] || exit 0
 
 name="${choice%%$'\t'*}"
