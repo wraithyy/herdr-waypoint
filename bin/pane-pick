@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Pane `favorite-spaces.pick-pane`: fzf over saved favorites, then opens the
+# chosen one as a new workspace.
+set -uo pipefail
+ROOT="${HERDR_PLUGIN_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
+# shellcheck source=lib.sh
+. "$ROOT/bin/lib.sh"
+
+herdr_bin="${HERDR_BIN_PATH:-herdr}"
+
+die() {
+  printf '%s\n' "$*"
+  sleep 2
+  exit 1
+}
+
+command -v fzf >/dev/null 2>&1 || die "favorite-spaces: fzf is not installed or not on PATH."
+
+store="$(fav_store)"
+[ -s "$store" ] || die "favorite-spaces: no favorites yet — run 'Favorites: save current folder' first."
+
+choice="$(fzf --delimiter=$'\t' --with-nth=1,2 --prompt='favorite ▸ ' --header='enter open · esc cancel' --reverse --no-multi < "$store")" || true
+[ -n "$choice" ] || exit 0
+
+name="${choice%%$'\t'*}"
+path="${choice#*$'\t'}"
+
+[ -d "$path" ] || die "favorite-spaces: '$path' no longer exists."
+
+"$herdr_bin" workspace create --cwd "$path" --label "$name" --focus >/dev/null
