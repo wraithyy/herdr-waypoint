@@ -9,19 +9,13 @@ platforms = ["macos", "linux"]
 id = "add"
 title = "Waypoint: save current folder"
 contexts = ["workspace"]
-command = ["bash", "bin/open-add.sh"]
+command = ["bash", "bin/action-add.sh"]
 
 [[actions]]
 id = "pick"
 title = "Waypoint: new space from a waypoint"
 contexts = ["global", "workspace"]
 command = ["bash", "bin/open-pick.sh"]
-
-[[panes]]
-id = "add-pane"
-title = "Add waypoint"
-placement = "overlay"
-command = ["bash", "-c", "exec \"$HERDR_PLUGIN_ROOT/bin/pane-add\""]
 
 [[panes]]
 id = "pick-pane"

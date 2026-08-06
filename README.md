@@ -1,8 +1,8 @@
 # herdr-waypoint
 
-Save folders you open workspaces from a lot, give each one a name, and jump
-back into any of them as a new [herdr](https://herdr.dev) workspace from a
-fuzzy picker.
+Save folders you open workspaces from a lot — one keypress, no prompt — and
+jump back into any of them as a new [herdr](https://herdr.dev) workspace from
+a fuzzy picker.
 
 ```
 waypoint ▸ pla
@@ -63,8 +63,10 @@ herdr server reload-config
 ## Use it
 
 - **Save**: focus a workspace in the folder you want to remember, hit your
-  `add` key. An overlay prompts for a name, defaulting to the folder's own
-  name — press Enter to keep it, or type a new one.
+  `add` key. Saved instantly, no prompt — the name is the workspace's own
+  label (herdr's "[3] chezmoi" minus the index), falling back to the
+  folder's basename if the workspace has no label. Rename it later if you
+  want something else.
 - **Jump**: hit your `pick` key anywhere. Fuzzy-search your saved waypoints,
   press Enter, and herdr opens that folder as a new focused workspace. The
   preview pane shows `git status` for the highlighted folder (or `ls -la` if
@@ -83,14 +85,14 @@ herdr server reload-config
 
 ## How it works
 
-herdr actions run on the server with **no TTY**, so they can't run `fzf` or
-`read` directly. Both keys instead open an **overlay pane** — a temporary
-popup over the active pane that *does* get a TTY:
+`waypoint.add` runs entirely on the herdr server — it reads the originating
+workspace's folder and label straight from `$HERDR_PLUGIN_CONTEXT_JSON` and
+appends `name<TAB>path` to the waypoints file. No TTY, no pane, no round
+trip: the keypress *is* the save.
 
-- `waypoint.add` resolves the originating workspace's folder and opens the
-  `add-pane` overlay, which prompts for a name and appends `name<TAB>path` to
-  the waypoints file.
-- `waypoint.pick` opens the `pick-pane` overlay. When `fzf` is installed it
+`waypoint.pick` needs a real terminal for `fzf`/`read`, which a server-side
+action doesn't have — so it opens the `pick-pane` **overlay**, a temporary
+popup over the active pane that does get a TTY. When `fzf` is installed it
   runs `fzf` over the waypoints file with a preview, `ctrl-x` delete, and
   `ctrl-r` rename bindings (each re-reads the file via fzf's `reload`, so the
   list updates without leaving the picker). Without `fzf`, `bin/pick-fallback`
