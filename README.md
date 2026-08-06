@@ -29,7 +29,16 @@ waypoint ▸ pla
 herdr plugin install wraithyy/herdr-waypoint
 ```
 
-…or, for local development:
+This tracks `master`. Pin a revision if you don't want a later push changing
+what's running under you:
+
+```bash
+herdr plugin install wraithyy/herdr-waypoint --ref <commit-sha>
+```
+
+…or, for local development (also pins — it's your checkout, at whatever
+commit you have it at, and `git pull` is a deliberate step instead of
+something that happens on your next `herdr plugin install`):
 
 ```bash
 git clone https://github.com/wraithyy/herdr-waypoint
