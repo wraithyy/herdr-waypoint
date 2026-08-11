@@ -24,3 +24,4 @@ name="$(printf '%s' "$label" | sed -E 's/^\[[0-9]+\][[:space:]]*//')"
 
 wp_add "$name" "$repo"
 printf 'waypoint saved: %s -> %s\n' "$name" "$repo"
+"${HERDR_BIN_PATH:-herdr}" notification show "waypoint" --body "saved: $name" --sound none 2>/dev/null || true
