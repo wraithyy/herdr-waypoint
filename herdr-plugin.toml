@@ -1,6 +1,6 @@
 id = "waypoint"
 name = "Waypoint"
-version = "0.1.0"
+version = "0.2.0"
 min_herdr_version = "0.7.0"
 description = "Save folders with a name, then pick one from a fuzzy list to open as a new workspace."
 platforms = ["macos", "linux"]
