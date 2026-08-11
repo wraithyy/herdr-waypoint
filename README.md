@@ -47,12 +47,13 @@ herdr plugin link ./herdr-waypoint
 
 ## Bind keys
 
+Default keys bind themselves: a startup hook adds `prefix+y` (pick) and
+`prefix+shift+v` (add) on the next herdr server start after install,
+skipping anything already bound or taken. To bind immediately:
+
 ```bash
 herdr plugin action invoke waypoint.install-keybinds
-```
-
-Binds `prefix+y` (pick) and `prefix+shift+v` (add), skipping anything
-already bound or taken. Want different keys? herdr doesn't bind keys from
+``` Want different keys? herdr doesn't bind keys from
 plugin manifests, so add them to `~/.config/herdr/config.toml` yourself:
 
 ```toml

@@ -23,6 +23,10 @@ title = "Waypoint: bind prefix+y / prefix+shift+v in config.toml"
 contexts = ["global", "workspace"]
 command = ["bash", "bin/install-keybinds.sh"]
 
+# binds the default keys on first server start after install (silent no-op once bound)
+[[startup]]
+command = ["bash", "bin/install-keybinds.sh"]
+
 [[panes]]
 id = "pick-pane"
 title = "New space from a waypoint"

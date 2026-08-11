@@ -7,6 +7,8 @@ herdr_bin="${HERDR_BIN_PATH:-herdr}"
 config="${XDG_CONFIG_HOME:-$HOME/.config}/herdr/config.toml"
 
 toast() { "$herdr_bin" notification show "waypoint" --body "$1" 2>/dev/null; }
+# on server startup runs, stay silent unless we actually change something
+quiet="${HERDR_PLUGIN_EVENT:-}"
 
 added=0
 if ! grep -q 'command = "waypoint.pick"' "$config" 2>/dev/null; then
@@ -42,7 +44,7 @@ EOF
 fi
 
 if [ "$added" = 0 ]; then
-  toast "already bound — nothing to do"
+  [ "$quiet" = "startup" ] || toast "already bound — nothing to do"
   exit 0
 fi
 
