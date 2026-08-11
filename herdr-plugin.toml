@@ -17,6 +17,12 @@ title = "Waypoint: new space from a waypoint"
 contexts = ["global", "workspace"]
 command = ["bash", "bin/open-pick.sh"]
 
+[[actions]]
+id = "install-keybinds"
+title = "Waypoint: bind prefix+y / prefix+shift+v in config.toml"
+contexts = ["global", "workspace"]
+command = ["bash", "bin/install-keybinds.sh"]
+
 [[panes]]
 id = "pick-pane"
 title = "New space from a waypoint"

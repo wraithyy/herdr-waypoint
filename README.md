@@ -47,9 +47,13 @@ herdr plugin link ./herdr-waypoint
 
 ## Bind keys
 
-herdr 0.7 does not bind keys declared in a plugin manifest, and there is no
-plugin hook into the native "new workspace" dialog or the pane right-click
-menu — so bind keys yourself in `~/.config/herdr/config.toml`:
+```bash
+herdr plugin action invoke waypoint.install-keybinds
+```
+
+Binds `prefix+y` (pick) and `prefix+shift+v` (add), skipping anything
+already bound or taken. Want different keys? herdr doesn't bind keys from
+plugin manifests, so add them to `~/.config/herdr/config.toml` yourself:
 
 ```toml
 [[keys.command]]
@@ -65,9 +69,7 @@ command = "waypoint.add"
 description = "Save current folder as a waypoint"
 ```
 
-```bash
-herdr server reload-config
-```
+…then `herdr server reload-config`.
 
 ## Use it
 
