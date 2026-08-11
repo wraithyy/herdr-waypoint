@@ -92,6 +92,21 @@ herdr server reload-config
   ~/herdr-waypoint/bin/cli-add . my-name
   ```
 
+## Configure
+
+Optional — `~/.config/herdr/plugins/config/waypoint/waypoint.conf`
+(shell syntax):
+
+```sh
+# picker placement: "popup" = centered float (default), "overlay" = fullscreen
+placement="popup"
+popup_width="60%"
+popup_height="50%"
+```
+
+Note: herdr refuses to open popups while another popup/overlay or a modal
+view is active ("ui_busy") — close it first.
+
 ## How it works
 
 `waypoint.add` runs entirely on the herdr server — it reads the originating
