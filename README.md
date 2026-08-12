@@ -4,14 +4,7 @@ Save folders you open workspaces from a lot — one keypress, no prompt — and
 jump back into any of them as a new [herdr](https://herdr.dev) workspace from
 a fuzzy picker.
 
-```
-waypoint ▸ pla
-┌──────────────────────────────────────────────┐
-│ enter open · ctrl-x delete · ctrl-r rename     │
-│ > placeo   /Users/josef/Development/placeo    │
-│   chezmoi  /Users/josef/.local/share/chezmoi   │
-└──────────────────────────────────────────────┘
-```
+![waypoint demo](assets/demo.gif)
 
 ## Requirements
 
