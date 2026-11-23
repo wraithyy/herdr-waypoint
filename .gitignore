@@ -1,1 +1,3 @@
 .DS_Store
+herdr-app-mod/mods/*/gpui-kit.d.ts
+herdr-app-mod/mods/*/jsconfig.json
