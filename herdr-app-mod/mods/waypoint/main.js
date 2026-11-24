@@ -1,10 +1,11 @@
 // Waypoint for herdr-app: saved folders, fuzzy-picked, opened as a new space.
 // Same TSV store format as the TUI plugin ("name<TAB>path" per line).
-// Enter open · ctrl+s save the focused terminal's folder · ctrl+x delete · Esc close.
+// Enter open · ctrl+s save the focused terminal's folder · ctrl+r rename · ctrl+x delete · Esc close.
 
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex, InputState, Input } from "gpui-base";
 import { appHome, exec, readTextFile, writeTextFile, run, theme, props, closeOverlay, focused, spaces, notify } from "herdr";
+import { score } from "./match.js";
 
 const STORE = `${appHome()}/data/waypoint/waypoints.tsv`;
 const VISIBLE = 12;
@@ -17,31 +18,25 @@ function parse(text) {
     .map(([name, path]) => ({ name, path }));
 }
 
-// Subsequence match, like fzf without scoring: "chz" finds "chezmoi".
-function matches(item, f) {
-  const hay = `${item.name} ${item.path}`.toLowerCase();
-  let i = 0;
-  for (const ch of hay) if (ch === f[i]) i++;
-  return i === f.length;
-}
-
 export default class Waypoint extends View {
   init(_props, cx) {
     this.items = [];
     this.raw = null;
     this.filter = "";
     this.at = 0;
+    this.renaming = null; // the waypoint being renamed; the input then edits its name
     // Captured before the popup takes focus: the folder "save" refers to.
     const f = focused();
     this.here = f?.cwd ?? null;
     this.spaceName = spaces().find((s) => s.id === f?.space)?.name ?? null;
     this.input = InputState.new({ placeholder: "Open a waypoint as a new space…" });
     this.input.on("change", (_e, cx) => {
+      if (this.renaming) return;
       this.filter = this.input.value().toLowerCase();
       this.at = 0;
       cx.notify();
     });
-    this.input.on("submit", (_e, cx) => this.open(this.rows()[this.at]));
+    this.input.on("submit", (_e, cx) => (this.renaming ? this.finishRename(cx) : this.open(this.rows()[this.at])));
     this.input.focus();
     cx.timer.after(600, () => this.input.focus());
     this.handle = cx.focus_handle();
@@ -65,7 +60,12 @@ export default class Waypoint extends View {
   }
 
   rows() {
-    return this.filter ? this.items.filter((w) => matches(w, this.filter)) : this.items;
+    if (!this.filter) return this.items;
+    return this.items
+      .map((w, i) => ({ w, i, s: score(w, this.filter) }))
+      .filter((x) => x.s !== null)
+      .sort((a, b) => a.s - b.s || a.i - b.i)
+      .map((x) => x.w);
   }
 
   close() {
@@ -87,6 +87,27 @@ export default class Waypoint extends View {
       await this.save(items, cx);
       notify({ title: "waypoint", body: `saved: ${name}`, level: "success", timeout: 3000 });
     });
+  }
+
+  startRename(w) {
+    if (!w) return;
+    this.renaming = w;
+    this.input.set_value(w.name);
+  }
+
+  cancelRename() {
+    this.renaming = null;
+    this.input.set_value(this.filter);
+  }
+
+  finishRename(cx) {
+    const w = this.renaming;
+    const name = this.input.value().replace(/\t/g, " ").trim();
+    this.renaming = null;
+    this.input.set_value(this.filter);
+    if (!w || !name || name === w.name) return cx.notify();
+    const items = this.items.map((x) => (x.path === w.path ? { ...x, name } : x));
+    cx.spawn(async (cx) => this.save(items, cx));
   }
 
   remove(w, cx) {
@@ -131,11 +152,12 @@ export default class Waypoint extends View {
       .on_key_down((e, cx) => {
         const k = e.key;
         const ctrl = e.modifiers.control;
-        if (k === "escape") return this.close();
+        if (k === "escape") return this.renaming ? (this.cancelRename(), cx.notify()) : this.close();
         if (k === "down" || (ctrl && k === "n")) this.at = Math.min(this.at + 1, rows.length - 1);
         else if (k === "up" || (ctrl && k === "p")) this.at = Math.max(this.at - 1, 0);
         else if (ctrl && k === "s") this.add(cx);
         else if (ctrl && k === "x") this.remove(rows[this.at], cx);
+        else if (ctrl && k === "r") this.startRename(rows[this.at]);
         else return;
         cx.stop_propagation();
         cx.notify();
@@ -143,8 +165,11 @@ export default class Waypoint extends View {
       .child(
         h_flex()
           .items_center()
-          .child(div().flex_1().text_size(15).font_semibold().text_color(t.foreground).child("Waypoints"))
-          .child(div().text_size(11).text_color(t.dim).child("enter open · ctrl+s save here · ctrl+x delete · esc")),
+          .child(div().flex_1().text_size(15).font_semibold().text_color(t.foreground)
+            .child(this.renaming ? `Rename ${this.renaming.name}` : "Waypoints"))
+          .child(div().text_size(11).text_color(t.dim).child(this.renaming
+            ? "enter save name · esc cancel"
+            : "enter open · ctrl+s save here · ctrl+r rename · ctrl+x delete · esc")),
       )
       .child(
         h_flex().h(36).flex_none().px(10).items_center().rounded(9).border_1().border_color(t.accent).bg(t.background)
